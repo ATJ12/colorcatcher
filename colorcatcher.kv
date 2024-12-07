@@ -1,0 +1,273 @@
+#:kivy 2.0.0
+
+<MenuScreen>:
+    music_toggle: music_btn
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'backgroundmenu.webp'
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 20
+        padding: 100
+
+        PixelButton:
+            text: "Start Game"
+            size_hint: None, None
+            size: 250, 60
+            pos_hint: {"center_x":0.5}
+            on_release:
+                app.root.current = 'game'
+
+        PixelButton:
+            text: "Help"
+            size_hint: None, None
+            size: 250, 60
+            pos_hint: {"center_x":0.5}
+            on_release:
+                root.show_help()
+
+        MusicToggleButton:
+            id: music_btn
+            size_hint: None, None
+            size: 50, 50
+            pos_hint: {"center_x":0.5}
+
+
+<PixelButton>:
+    font_name: 'DejaVuSans.ttf'
+    background_normal: ''
+    background_down: ''
+    background_color: 0, 0, 0, 0
+    border_color: 1, 1, 1, 1
+    font_size: 20
+    size_hint: None, None
+    size: 250, 60
+    color: 1, 1, 1, 1
+
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        Color:
+            rgba: self.border_color
+        Line:
+            width: 2
+            rectangle: (self.x, self.y, self.width, self.height)
+
+    on_press:
+        self.background_color = (0.1, 0.1, 0.1, 1)
+        self.border_color = (0.8, 0.8, 0.8, 1)
+    on_release:
+        self.background_color = (0, 0, 0, 0)
+        self.border_color = (1, 1, 1, 1)
+
+
+<GameScreen>:
+    player_widget: player
+    canvas.before:
+        Rectangle:
+            size: self.size
+            pos: self.pos
+            texture: self.gradient_texture
+
+    Player:
+        id: player
+        center_x: self.width / 2
+        y: 10
+        size_hint: None, None
+        size: 50, 50
+        canvas.before:
+            PushMatrix
+            Scale:
+                origin: self.center
+                x: self.scale
+                y: self.scale
+            Color:
+                rgba: self.color
+            Ellipse:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: self.color[0], self.color[1], self.color[2], 0.5
+            Ellipse:
+                pos: self.x - 10, self.y - 10
+                size: self.width + 20, self.height + 20
+            PopMatrix
+
+    # Score Indicator
+    StatusIndicator:
+        icon_source: 'coin.png'
+        value: root.score
+        size_hint: None, None
+        size: 100, 30
+        pos: 10, root.height - 40
+
+    # Lives Indicator
+    StatusIndicator:
+        icon_source: 'heart.png'
+        value: root.lives
+        size_hint: None, None
+        size: 100, 30
+        pos: 10, root.height - 80
+
+    # Level Indicator
+    StatusIndicator:
+        icon_source: 'star.png'
+        value: root.level
+        size_hint: None, None
+        size: 100, 30
+        pos: root.width - 110, root.height - 40
+
+    MusicToggleButton:
+        size_hint: None, None
+        size: 50, 50
+        pos: root.width - 170, root.height - 40
+        on_release:
+            self.toggle_music(self)
+
+    PixelButton:
+        text: "Replay"
+        size_hint: None, None
+        size: 250, 60
+        center_x: root.center_x
+        top: root.top - 80
+        on_release: root.restart_game()
+
+    PixelButton:
+        text: "Help"
+        size_hint: None, None
+        size: 250, 60
+        center_x: root.center_x
+        top: root.top - 150
+        on_release: root.show_help()
+
+
+<FallingObject>:
+    size_hint: None, None
+    size: 40, 40
+    angle: 0
+    canvas.before:
+        PushMatrix
+        Translate:
+            x: self.center_x
+            y: self.center_y
+        Rotate:
+            angle: self.angle
+            origin: 0, 0
+        Color:
+            rgba: self.color
+        Ellipse:
+            pos: -self.width / 2, -self.height / 2
+            size: self.size
+        Color:
+            rgba: self.color[0], self.color[1], self.color[2], 0.3
+        Ellipse:
+            pos: -self.width / 2 - 5, -self.height / 2 - 5
+            size: self.width + 10, self.height + 10
+        PopMatrix
+
+<PowerUp>:
+    size_hint: None, None
+    size: 40, 40
+    angle: 0
+    canvas.before:
+        PushMatrix
+        Translate:
+            x: self.center_x
+            y: self.center_y
+        Rotate:
+            angle: self.angle
+            origin: 0, 0
+        Color:
+            rgba: self.color
+        Rectangle:
+            pos: -self.width / 2, -self.height / 2
+            size: self.size
+        Color:
+            rgba: self.color[0], self.color[1], self.color[2], 0.3
+        Rectangle:
+            pos: -self.width / 2 - 5, -self.height / 2 - 5
+            size: self.width + 10, self.height + 10
+        PopMatrix
+
+<Particle>:
+    size_hint: None, None
+    size: 5, 5
+    canvas.before:
+        Color:
+            rgba: self.color
+        Ellipse:
+            pos: self.pos
+            size: self.size
+
+<StatusIndicator>:
+    font_name: 'DejaVuSans.ttf'
+    size_hint: None, None
+    size: 100, 30
+    icon_source: ''
+    value: 0
+
+    BoxLayout:
+        orientation: 'horizontal'
+        size: root.size
+        pos: root.pos
+        spacing: 5
+        padding: 5
+
+        Image:
+            id: icon_image
+            source: root.icon_source
+            size_hint: None, None
+            size: 30, 30
+            allow_stretch: True
+            keep_ratio: True
+
+        Label:
+            id: value_label
+            font_name: 'DejaVuSans.ttf'
+            text: str(root.value)
+            size_hint: 1, 1
+            font_size: 20
+            color: 1, 1, 1, 1
+            valign: 'middle'
+            halign: 'left'
+            text_size: self.size
+
+<GameOverScreen>:
+    size_hint: None, None
+    size: root.size
+    pos: root.pos
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, root.bg_opacity
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    Label:
+        id: game_over_label
+        font_name: 'DejaVuSans.ttf'
+        text: "[b][color=#FF0000]GAME[/color] [color=#FFFFFF]OVER[/color][/b]"
+        markup: True
+        font_size: 60
+        bold: True
+        outline_width: 1
+        outline_color: 1, 0, 0, 1
+        color: 1, 1, 1, 1
+        center_x: root.center_x
+        top: root.top - 150
+
+    PixelButton:
+        text: "Replay"
+        size_hint: None, None
+        size: 250, 60
+        center_x: root.center_x
+        center_y: root.center_y
+        on_release:
+            root.on_replay()
